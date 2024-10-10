@@ -2,50 +2,55 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const {
-  getTopics,
-  getTopic,
-  addNewTopic,
-  addNewOpinion,
+  getProducts,
+  addNewProduct,
+  addNewComment,
+  getProduct,
 } = require('./data');
 
 const app = express();
+port = 3001;
 
-app.set('view engine', 'ejs');
+// Middleware to parse JSON requests
+app.use(express.json());
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static('public'));
-
-app.get('/', function (req, res) {
-  res.redirect('/topics');
+// API Endpoint: GET /products
+app.get('/products', async function (req, res) {
+  const products = await getProducts();
+  res.json(products);
 });
 
-app.get('/topics', async function (req, res) {
-  const topics = await getTopics();
-  res.render('index', { topics: topics });
+// API Endpoint: POST /product
+app.post('/product', async function (req, res) {
+  const productData = req.body;
+  await addNewProduct(productData);
+  res.status(201).json({ message: 'created!', productData });
 });
 
-app.get('/topics/:id', async function (req, res) {
-  const topicId = req.params.id;
-  const topic = await getTopic(topicId);
-  res.render('topic', { topic: topic });
+// API Endpoint: GET /products/:id
+app.get('/products/:id', async function (req, res) {
+  const productId = req.params.id;
+  const product = await getProduct(productId);
+  res.json(product);
 });
 
-app.post('/topic', async function (req, res) {
-  const topicData = req.body;
-  await addNewTopic(topicData);
-  res.redirect('/topics');
-});
-
-app.post('/share-opinion', async function (req, res) {
+// API Endpoint: POST /comment
+app.post('/comment', async function (req, res) {
   const submittedData = req.body;
-  const topicId = submittedData['topic-id'];
-  const opinionData = {
+  const productId = submittedData.productId;
+  const commentData = {
     title: submittedData.title,
     user: submittedData.user,
     text: submittedData.text,
   };
-  await addNewOpinion(topicId, opinionData);
-  res.redirect(`/topics/${topicId}`);
+  await addNewComment(productId, commentData);
+  res.status(201).json({ message: 'comment created!', commentData });
 });
 
-app.listen(3000);
+//----
+
+//-----
+
+app.listen(port, () => {
+  console.log(`listening on :${port}`);
+});

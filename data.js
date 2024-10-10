@@ -10,94 +10,98 @@ const {
 
 const client = new dynamodb.DynamoDBClient({
   region: 'us-east-1',
+  // --- delete this ----
+
+  // --- delete this ----
 });
 const ddbDocClient = new DynamoDBDocumentClient(client);
 
-function addNewTopic(topicData) {
+function addNewProduct(productData) {
   const cmd = new PutCommand({
     Item: {
       Id: generateId(),
-      Title: topicData.title,
-      User: topicData.user,
-      Statement: topicData.statement,
+      Title: productData.title,
+      User: productData.user,
+      Description: productData.description,
     },
-    TableName: 'Topics',
+    TableName: 'Products',
   });
   return ddbDocClient.send(cmd);
 }
 
-function addNewOpinion(topicId, opinionData) {
-  const cmd = new PutCommand({
-    Item: {
-      TopicId: topicId,
-      CreationDate: new Date().toISOString(),
-      Title: opinionData.title,
-      User: opinionData.user,
-      Text: opinionData.text,
-    },
-    TableName: 'Opinions',
-  });
-  return ddbDocClient.send(cmd);
-}
-
-async function getTopics() {
+async function getProducts() {
   const cmd = new ScanCommand({
-    TableName: 'Topics',
+    TableName: 'Products',
   });
 
   const response = await ddbDocClient.send(cmd);
   const items = response.Items;
-  console.log(items);
 
   return items.map((item) => ({
     title: item.Title,
     user: item.User,
     id: item.Id,
-    statement: item.Statement,
+    description: item.Description,
   }));
 }
 
-async function getTopic(id) {
+function addNewComment(productId, commentData) {
+  const cmd = new PutCommand({
+    Item: {
+      Id: generateId(),
+      ProductId: productId,
+      CreationDate: new Date().toISOString(),
+      Title: commentData.title,
+      User: commentData.user,
+      Text: commentData.text,
+    },
+    TableName: 'Comments',
+  });
+  return ddbDocClient.send(cmd);
+}
+
+async function getProduct(productId) {
   const cmd = new GetCommand({
     Key: {
-      Id: id,
+      Id: productId,
     },
-    TableName: 'Topics',
+    TableName: 'Products',
   });
 
   const response = await ddbDocClient.send(cmd);
-  const topicData = response.Item;
+  const productData = response.Item;
 
   const cmd2 = new QueryCommand({
     KeyConditions: {
-      TopicId: {
-        AttributeValueList: [id],
-        ComparisonOperator: 'EQ'
+      ProductId: {
+        AttributeValueList: [productId],
+        ComparisonOperator: 'EQ',
       },
     },
-    TableName: 'Opinions',
+    TableName: 'Comments',
   });
 
   const response2 = await ddbDocClient.send(cmd2);
-  const opinions = response2.Items;
+  const comments = response2.Items;
 
-  const topic = {
-    id: topicData.Id,
-    title: topicData.Title,
-    statement: topicData.Statement,
-    user: topicData.User,
-    opinions: opinions.map((opinion) => ({
-      id: opinion.TopicId + opinion.CreationDate,
-      title: opinion.Title,
-      user: opinion.User,
-      text: opinion.Text,
+  const product = {
+    id: productData.Id,
+    title: productData.Title,
+    description: productData.Description,
+    user: productData.User,
+    comments: comments.map((comment) => ({
+      id: comment.Id,
+      productId: comment.ProductId,
+      title: comment.Title,
+      user: comment.User,
+      text: comment.Text,
     })),
   };
 
-  return topic;
+  return product;
 }
 
-exports.addNewTopic = addNewTopic;
-exports.addNewOpinion = addNewOpinion;
-exports.getTopics = getTopics;
-exports.getTopic = getTopic;
+exports.addNewProduct = addNewProduct;
+exports.addNewComment = addNewComment;
+exports.getProducts = getProducts;
+exports.getProduct = getProduct;

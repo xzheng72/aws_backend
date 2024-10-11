@@ -86,14 +86,8 @@ async function getProducts() {
     };
   });
 
-  let meta = null;
-  getInstanceMetadata()
-    .then((metadata) => {
-      meta = metadata;
-    })
-    .catch((err) => {
-      console.error('Error fetching metadata:', err);
-    });
+  // Await EC2 metadata
+  const meta = await getInstanceMetadata();
 
   return { products: products, ec2Metadata: meta };
 }

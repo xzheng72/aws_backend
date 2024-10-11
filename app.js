@@ -66,7 +66,7 @@ app.get('/ec2metadata', async function (req, res) {
 // });
 
 //----
-export function getInstanceMetadata() {
+function getInstanceMetadata() {
   return new Promise((resolve, reject) => {
     // Get the instance ID
     http

@@ -153,6 +153,44 @@ async function getProduct(productId) {
   return product;
 }
 
+function getInstanceMetadata() {
+  return new Promise((resolve, reject) => {
+    // Get the instance ID
+    http
+      .get('http://169.254.169.254/latest/meta-data/instance-id', (res) => {
+        let instanceId = '';
+
+        res.on('data', (chunk) => {
+          instanceId += chunk.toString();
+        });
+
+        res.on('end', () => {
+          // Get the availability zone
+          http
+            .get(
+              'http://169.254.169.254/latest/meta-data/placement/availability-zone',
+              (res) => {
+                let availabilityZone = '';
+
+                res.on('data', (chunk) => {
+                  availabilityZone += chunk.toString();
+                });
+
+                res.on('end', () => {
+                  resolve({
+                    instanceId,
+                    availabilityZone,
+                  });
+                });
+              }
+            )
+            .on('error', reject);
+        });
+      })
+      .on('error', reject);
+  });
+}
+
 exports.addNewProduct = addNewProduct;
 //exports.addNewComment = addNewComment;
 exports.getProducts = getProducts;

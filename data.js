@@ -73,7 +73,8 @@ async function getProducts() {
   const response2 = await ddbDocClient.send(cmd2);
   const images = response2.Items;
 
-  return items.map((item) => {
+  //fetch products
+  const products = items.map((item) => {
     const foundImage = images.find((image) => image.ProductId === item.Id);
     return {
       title: item.Title,
@@ -83,6 +84,17 @@ async function getProducts() {
       imageURI: foundImage ? foundImage.ImageURI : '',
     };
   });
+
+  const meta = null;
+
+  getInstanceMetadata()
+    .then((metadata) => {
+      meta = metadata;
+      return { products: products, ec2Metadata: meta };
+    })
+    .catch((err) => {
+      console.error('Error fetching metadata:', err);
+    });
 }
 
 // function addNewComment(productId, commentData) {

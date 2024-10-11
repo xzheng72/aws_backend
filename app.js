@@ -30,6 +30,7 @@ app.post('/product', upload.single('image'), async function (req, res) {
   //upload the image to s3 with ProductId.xxx as name
   //create dynamodb record
   await addNewProduct(req);
+
   res.status(201).json({ message: 'created!', item: req.body });
 });
 
@@ -65,7 +66,7 @@ app.get('/ec2metadata', async function (req, res) {
 // });
 
 //----
-function getInstanceMetadata() {
+export function getInstanceMetadata() {
   return new Promise((resolve, reject) => {
     // Get the instance ID
     http

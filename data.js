@@ -1,3 +1,4 @@
+const http = require('http');
 const dotenv = require('dotenv');
 const { v4: generateId } = require('uuid');
 const dynamodb = require('@aws-sdk/client-dynamodb');

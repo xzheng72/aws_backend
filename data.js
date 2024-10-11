@@ -86,11 +86,9 @@ async function getProducts() {
     };
   });
 
-  const meta = null;
-
   getInstanceMetadata()
     .then((metadata) => {
-      meta = metadata;
+      const meta = metadata;
       return { products: products, ec2Metadata: meta };
     })
     .catch((err) => {

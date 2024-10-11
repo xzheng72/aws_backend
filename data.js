@@ -86,14 +86,16 @@ async function getProducts() {
     };
   });
 
+  let meta = null;
   getInstanceMetadata()
     .then((metadata) => {
-      const meta = metadata;
-      return { products: products, ec2Metadata: meta };
+      meta = metadata;
     })
     .catch((err) => {
       console.error('Error fetching metadata:', err);
     });
+
+  return { products: products, ec2Metadata: meta };
 }
 
 // function addNewComment(productId, commentData) {

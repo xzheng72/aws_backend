@@ -18,7 +18,7 @@ const BUCKET_NAME = process.env.BUCKET_NAME;
 const BUCKET_REGION = process.env.BUCKET_REGION;
 //s3
 const s3_client = new S3Client({
-  region: BUCKET_REGION,
+  region: 'us-east-1',
   // --- delete this ----
 
   // --- delete this ----
@@ -38,7 +38,7 @@ async function addNewProduct(req) {
   //upload image to s3
   const image_extension = req.file.originalname.split('.').pop();
   const cmd_s3 = new PutObjectCommand_s3({
-    Bucket: BUCKET_NAME,
+    Bucket: 'productbucket2738',
     Key: productId + '.' + image_extension,
     Body: req.file.buffer,
     ContentType: req.file.mimetype,
